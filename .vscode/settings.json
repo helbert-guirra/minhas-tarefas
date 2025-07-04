@@ -1,6 +1,19 @@
 {
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
-    }
+      "source.fixAll.eslint": "explicit"
+    },
+    "cSpell.words": [
+      "Acoes",
+      "Barra",
+      "Botao",
+      "Cancelar",
+      "Descricao",
+      "Descrição",
+      "Editar",
+      "Importante",
+      "Pendente",
+      "Tarefa",
+      "Titulo"
+    ]
   }
