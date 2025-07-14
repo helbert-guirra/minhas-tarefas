@@ -1,32 +1,67 @@
-// Importa o hook useSelector do react-redux para acessar o estado global da aplicação
 import { useSelector } from 'react-redux'
-
-// Importa o componente Tarefa, que será usado para exibir cada tarefa individualmente
 import Tarefa from '../../components/tarefas'
-
-// Importa o componente estilizado Container para estruturar o layout da lista
-import { Container } from './styles'
-
-// Importa todos os enums relacionados a tarefas (por exemplo, status, prioridade)
-import * as enums from '../../utils/enums/tarefa'
-
-// Importa o tipo RootReducer para tipar corretamente o estado global
+import { MainContainer, Titulo } from '../../styles'
 import { RootReducer } from '../../store'
 
-// Define o componente funcional ListaDeTarefas
 const ListaDeTarefas = () => {
-  // Usa o useSelector para acessar o estado de tarefas no Redux
   const { itens } = useSelector((state: RootReducer) => state.tarefas)
+  const { termo, criterio, valor } = useSelector(
+    (state: RootReducer) => state.filtro
+  )
 
-  // Renderiza o componente
+  // Função que filtra a lista de tarefas com base nos filtros atuais (termo, criterio, valor)
+  const filtraTarefas = () => {
+    // Começa com todos os itens, como se fosse a matéria-prima da fábrica
+    let tarefasFiltradas = itens
+
+    // 1️⃣ Primeiro filtro: busca por termo no título
+    // Se tiver um termo digitado pelo usuário, filtra as tarefas cujo título contém esse termo
+    if (termo !== undefined) {
+      tarefasFiltradas = tarefasFiltradas.filter(
+        (item) => item.titulo.toLowerCase().search(termo.toLowerCase()) >= 0
+      )
+    }
+
+    // 2️⃣ Segundo filtro: baseado no critério selecionado
+    // Se o critério for 'prioridade', filtra para manter só as tarefas com a prioridade escolhida
+    if (criterio === 'prioridade') {
+      tarefasFiltradas = tarefasFiltradas.filter(
+        (item) => item.prioridade === valor
+      )
+    }
+    // Se o critério for 'status', filtra para manter só as tarefas com o status escolhido
+    else if (criterio === 'status') {
+      tarefasFiltradas = tarefasFiltradas.filter(
+        (item) => item.status === valor
+      )
+    }
+
+    // Retorna a lista final filtrada
+    return tarefasFiltradas
+  }
+
+  const exibeResultadoFiltragem = (quantidade: number) => {
+    let mensagem = ''
+
+    const complementacao =
+      termo !== undefined && termo.length > 0 ? `e "${termo}"` : ''
+
+    if (criterio === 'todas') {
+      mensagem = `${quantidade} tarefa(s) encontrada(s) como: todas ${complementacao}`
+    } else {
+      mensagem = `${quantidade} tarefa(s) encontrada(s) como: ${`${criterio}=${valor}`}" ${complementacao}`
+    }
+    return mensagem
+  }
+
+  const tarefas = filtraTarefas()
+  const mensagem = exibeResultadoFiltragem(tarefas.length)
+
   return (
-    <Container>
-      {/* Exibe uma mensagem fixa sobre tarefas filtradas (pode ser dinâmica futuramente) */}
-      <p>2 tarefas marcadas como: &quot;categoria&quot; e &quot;termo&quot;</p>
+    <MainContainer>
+      <Titulo as="p">{mensagem}</Titulo>
       <ul>
-        {/* Percorre a lista de tarefas e renderiza cada uma usando o componente Tarefa */}
-        {itens.map((t) => (
-          // Usa o título da tarefa como chave única (idealmente, use um id se disponível)
+        {tarefas.map((t) => (
           <li key={t.titulo}>
             <Tarefa
               id={t.id}
@@ -38,9 +73,8 @@ const ListaDeTarefas = () => {
           </li>
         ))}
       </ul>
-    </Container>
+    </MainContainer>
   )
 }
 
-// Exporta o componente para ser usado em outros lugares da aplicação
 export default ListaDeTarefas
